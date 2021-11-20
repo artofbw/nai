@@ -15,7 +15,7 @@ Maciej Rybacki
 import argparse
 import json
 import numpy as np
- 
+
  
 def build_arg_parser():
     parser = argparse.ArgumentParser(description='Find recommended movies for the user')
