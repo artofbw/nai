@@ -12,6 +12,7 @@ It is program that uses neural network for classification
 Authors:
 Maciej Rybacki
 Łukasz Ćwikliński
+
 pip3 install -r requirements.txt
 
 
@@ -61,11 +62,15 @@ Input file columns
     a wine additive which can contribute to sulfur dioxide gas (S02) levels, wich acts as an antimicrobial and antioxidant
 '''
 
+# Reading values from csv file
 wine_data = pd.read_csv('winequality-white.csv', delimiter=";", encoding="utf-8")
-wine_data.head()
 
+#wine_data.head()
+
+# Grouping values by quality column
 wine_data.groupby('quality').count().reset_index()
 
+# Getting only inputs
 X = wine_data[
     [
         'fixed acidity',
@@ -82,21 +87,27 @@ X = wine_data[
     ]
 ]
 
+#Getting only classification
 y = wine_data['quality']
 
+# Compute correlation of columns
 corr = wine_data.corr(method="pearson")
 
+# Creating figure object
 f, ax = plt.subplots(figsize=(10, 10))
 
+# Creating plot rectangular data as a color-encoded matrix
 sns.heatmap(corr, mask=np.zeros_like(corr, dtype=bool), cmap=sns.diverging_palette(220, 10, as_cmap=True), square=True, ax=ax, annot=True)
 
+# Dividing values on train and test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=0)
 
+# Standardizing data
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-
+# Creating neural network model layers
 model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(units=35, input_shape=(X_train.shape[1],), activation='relu'),
     tf.keras.layers.Dense(units=52, activation='relu'),
@@ -112,11 +123,14 @@ model = tf.keras.models.Sequential([
     tf.keras.layers.Dense(units=10, activation='softmax')
 ])
 
+# Compile model
 model.compile(optimizer='sgd', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 model.summary()
 
+# Train model
 cl = model.fit(X_train, y_train, validation_data=(X_test, y_test), epochs=60)
 
+# Creating figure object
 fig, ax = plt.subplots(figsize=(17, 8))
 
 plt.plot(cl.history['accuracy'], label='accuracy')
@@ -125,27 +139,28 @@ plt.plot(cl.history['loss'], label='loss')
 plt.plot(cl.history['val_loss'], label='val_loss', linestyle='--')
 plt.legend()
 
+# Calculate and print Loss and Accuracy
 ModelLoss, ModelAccuracy = model.evaluate(X_test, y_test)
 
 print(f'Test Loss is {ModelLoss}')
 print(f'Test Accuracy is {ModelAccuracy}')
 
-
+# Calculate prediction
 y_pred = model.predict(X_test)
 y_test_list = list(y_test)
 total = len(y_test_list)
 correct = 0
 
-
+# Calculate and print correct to total classifications ratio
 for i in range(total):
     if np.argmax(y_pred[i]) == y_test_list[i]:
         correct += 1
 
 print(f'{correct}/{total}')
 print(correct/total)
-#
-predict = model.predict(X_test)
 
+predict = model.predict(X_test)
+# Create classification report
 y_pred = []
 for i in range(len(predict)):
     y_pred.append(np.argmax(predict[i]))
@@ -156,11 +171,11 @@ print(cr)
 p_test = model.predict(X_test).argmax(axis=1)
 cm = tf.math.confusion_matrix(y_test, p_test)
 
+# Create and show diagrams
 f, ax = plt.subplots(figsize=(15, 6))
 sns.heatmap(cm, annot=True, cmap='Blues', square=True, linewidths=0.01, linecolor='grey')
 plt.title('Confustion matrix')
 plt.ylabel('True label')
 plt.xlabel('Predicted label')
 
-# print(f"One-vs-rest: {roc_auc_score(y_test, model.predict(X_test), multi_class='ovr')}")
-# print(f"One-vs-one: {roc_auc_score(y_test, model.predict(X_test), multi_class='ovo')}")
+plt.show()

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-It is program that uses neural network to classification
+It is program that uses neural network to clothes classification
 Authors:
 Maciej Rybacki
 Łukasz Ćwikliński
@@ -11,7 +11,7 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
-
+# Create image plot for diagram
 def plot_image(i, predictions_array, true_label, img):
     true_label, img = true_label[i], img[i]
     plt.grid(False)
@@ -32,6 +32,7 @@ def plot_image(i, predictions_array, true_label, img):
                color=color)
 
 
+#Create plot for value in diagram
 def plot_value_array(i, predictions_array, true_label):
     true_label = true_label[i]
     plt.grid(False)
@@ -45,23 +46,29 @@ def plot_value_array(i, predictions_array, true_label):
     thisplot[true_label].set_color('blue')
 
 
+# Import dataset of fashion images with labels
 fashion_mnist = tf.keras.datasets.fashion_mnist
 
+# Divide data on train and test, divide images and labels
 (train_images, train_labels), (test_images, test_labels) = fashion_mnist.load_data()
 
+# Declare class names
 class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
                'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
+# Normalization of data
 train_images = train_images / 255.0
 
 test_images = test_images / 255.0
 
+# Declare model of neural network with layers
 model = tf.keras.Sequential([
     tf.keras.layers.Flatten(input_shape=(28, 28)),
     tf.keras.layers.Dense(128, activation='relu'),
     tf.keras.layers.Dense(10)
 ])
 
+# Declare model compilation and train model
 model.compile(
     optimizer='adam',
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
@@ -70,21 +77,25 @@ model.compile(
 
 model.fit(train_images, train_labels, epochs=10)
 
+# Compute and print Loss and Accuracy
 test_loss, test_acc = model.evaluate(test_images,  test_labels, verbose=2)
 
 print('\nTest accuracy:', test_acc)
 
 probability_model = tf.keras.Sequential([model, tf.keras.layers.Softmax()])
-
+# Model prediction
 predictions = probability_model.predict(test_images)
 
+# Testing third image from test dataset
 i = 2
 img = test_images[i]
 img = (np.expand_dims(img, 0))
 predictions_single = probability_model.predict(img)
 
+# Plot and show diagram
 plot_value_array(1, predictions_single[0], test_labels)
 _ = plt.xticks(range(10), class_names, rotation=45)
 plt.show()
 
+# Print prediction of tested value
 print(np.argmax(predictions_single[0]))
