@@ -1,5 +1,5 @@
 '''
-It is program that recommends movies
+It is program that stop movie when you don't look at screen
 Authors:
 Maciej Rybacki
 Łukasz Ćwikliński
@@ -21,23 +21,27 @@ from selenium.webdriver.common.by import By
 
 
 # getting video from webcam
-
 cap = cv2.VideoCapture(0)
 
 # pre trained classifiers
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
 eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_eye.xml')
 
+# define a webdriver
 browser = webdriver.Chrome(service=Service(f"{os.path.abspath(os.getcwd())}/chromedriver"))
 browser.get("https://www.youtube.com/watch?v=YyzmLJVYtqk")
 WebDriverWait(browser, 3).until(EC.presence_of_element_located((By.CLASS_NAME, 'video-stream')))
 
+# play a video
 browser.execute_script('document.getElementsByTagName("video")[0].play()')
 
+# define statements
 is_playing = True
 is_paused = False
 
+# loop for opened eyes
 while cap.isOpened():
+    # Reading from video
     ret, frame = cap.read()
 
     # Converting the recorded image to grayscale
@@ -47,10 +51,11 @@ while cap.isOpened():
 
     # Detecting the face for region of image to be fed to eye classifier
     faces = face_cascade.detectMultiScale(gray, 1.3, 5)
-
+    # Preview from camera
     cv2.imshow("kamerka", frame)
 
     for (x, y, w, h) in faces:
+        # Draw a rectangle for face
         cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 5)
 
         # roi_gray is face which is input to eyes classifier
@@ -63,11 +68,13 @@ while cap.isOpened():
         # Examining the length of eyes object for eyes
         if len(eyes) >= 2:
             if not is_playing:
+                # play a video
                 browser.execute_script('document.getElementsByTagName("video")[0].play()')
                 is_playing = True
                 is_paused = False
         else:
             if not is_paused:
+                # stop a video
                 browser.execute_script('document.getElementsByTagName("video")[0].pause()')
                 is_playing = False
                 is_paused = True
