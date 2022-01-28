@@ -1,7 +1,0 @@
-gym
-selenium==4.0.0
-opencv-python==4.5.4.60
-Pillow
-imageio
-tqdm
-stable-baselines

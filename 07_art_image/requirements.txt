@@ -1,0 +1,5 @@
+opendatasets
+matplotlib
+torchvision
+ipywidgets
+scipy==1.2.0
