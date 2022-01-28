@@ -24,9 +24,11 @@ import torch.nn as nn
 
 
 def denorm(img_tensors):
+  """Image denormalize"""
   return img_tensors * stats[1][0] + stats[0][0]
 
 def show_images(images, nmax=64):
+  """Show images"""
   fig, ax = plt.subplots(figsize=(8, 8))
   ax.set_xticks([]);
   ax.set_yticks([])
@@ -34,6 +36,7 @@ def show_images(images, nmax=64):
 
 
 def show_batch(dl, nmax=64):
+  """Show batch of images"""
   for images, _ in dl:
     show_images(images, nmax)
     break
@@ -117,6 +120,7 @@ def train_generator(opt_g):
 
 
 def save_samples(index, latent_tensors, show=True):
+  """Save images"""
   fake_images = generator(latent_tensors)
   fake_fname = 'generated-images-{0:0=4d}.png'.format(index)
   save_image(denorm(fake_images), os.path.join(sample_dir, fake_fname), nrow=8)
@@ -201,7 +205,6 @@ if __name__ == '__main__':
   show_batch(train_dl)
 
   device = get_default_device()
-  device
 
   train_dl = DeviceDataLoader(train_dl, device)
 
@@ -313,6 +316,8 @@ if __name__ == '__main__':
   out = cv2.VideoWriter(vid_fname, cv2.VideoWriter_fourcc(*'MP4V'), 5, (530, 530))
   [out.write(cv2.imread(fname)) for fname in files]
   out.release()
+
+  # Dataset representation
 
   plt.plot(losses_d, '-')
   plt.plot(losses_g, '-')
